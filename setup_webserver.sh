@@ -103,6 +103,11 @@ sudo apt install varnish -y
 sudo tee /etc/varnish/default.vcl > /dev/null <<EOL
 vcl 4.1;
 
+acl purge {
+    "localhost";
+    "127.0.0.1";
+}
+
 backend default {
     .host = "127.0.0.1";
     .port = "8080";
@@ -137,7 +142,7 @@ sub vcl_deliver {
 }
 EOL
 
-sudo sed -i 's/-a :6081/-a :80/' /lib/systemd/system/varnish.service
+sudo sed -i 's/-a :6081/-a :8080/' /lib/systemd/system/varnish.service
 sudo systemctl daemon-reload
 sudo systemctl restart varnish
 
@@ -350,3 +355,52 @@ sudo systemctl restart varnish
 sudo systemctl restart redis-server
 
 echo "Server setup complete."
+
+# Final status checks and overview
+echo "checks and overview:"
+
+# Get server IP addresses
+SERVER_IPS=$(hostname -I)
+
+# Check Apache status and configuration
+echo -e "\n\e[1;34m--- Apache Status and Configuration ---\e[0m"
+sudo systemctl status apache2 --no-pager -l
+echo -e "\n\e[1;34mApache Config Test:\e[0m"
+sudo apache2ctl configtest
+echo -e "\n\e[1;34mVirtual Hosts:\e[0m"
+sudo apache2ctl -S
+
+# Check PHP-FPM status
+echo -e "\n\e[1;34m--- PHP-FPM Status ---\e[0m"
+sudo systemctl status php8.0-fpm --no-pager -l
+
+# Check Varnish status and configuration
+echo -e "\n\e[1;34m--- Varnish Status and Configuration ---\e[0m"
+sudo systemctl status varnish --no-pager -l
+echo -e "\n\e[1;34mVarnish Listening Ports:\e[0m"
+sudo netstat -tulpn | grep varnish
+
+# Check Redis status
+echo -e "\n\e[1;34m--- Redis Status ---\e[0m"
+sudo systemctl status redis-server --no-pager -l
+echo -e "\n\e[1;34mRedis Listening Ports:\e[0m"
+sudo netstat -tulpn | grep redis
+
+# Overview of modified files and configurations
+echo -e "\n\e[1;34m--- Overview of Modified Files and Configurations ---\e[0m"
+echo -e "\e[1;32mPHP Configuration File:\e[0m /etc/php/8.0/fpm/php.ini"
+echo -e "\e[1;32mApache Virtual Host File:\e[0m /etc/apache2/sites-available/opencart.conf"
+echo -e "\e[1;32mVarnish Configuration File:\e[0m /etc/varnish/default.vcl"
+echo -e "\e[1;32mPHP-FPM Pool Configuration:\e[0m /etc/php/8.0/fpm/pool.d/www.conf"
+echo -e "\e[1;32mServer Name:\e[0m $SERVER_NAME"
+echo -e "\e[1;32mServer Alias:\e[0m $SERVER_ALIAS"
+echo -e "\e[1;32mDocument Root:\e[0m $DOC_ROOT"
+echo -e "\e[1;32mServer IP Addresses:\e[0m $SERVER_IPS"
+
+# Generate URL to access the server
+echo -e "\n\e[1;34m--- Access URLs ---\e[0m"
+for IP in $SERVER_IPS; do
+  echo -e "\e[1;33mhttp://$SERVER_NAME:8080\e[0m (or) \e[1;33mhttp://$IP:8080\e[0m"
+done
+
+echo -e "\n\e[1;32mServer setup complete. Please check the above statuses and access the server using the provided URLs.\e[0m"
