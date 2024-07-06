@@ -24,17 +24,18 @@ Installation Steps
 Clone this repository to your server:
 
 git clone https://github.com/msitro/oc_webserver.git
+
 cd oc_webserver/
 
 2. Run the Script
 
 Make the script executable:
 
-chmod +x setup_opencart_server.sh
+chmod +x setup_webserver.sh
 
 Run the script with necessary parameters:
 
-sudo ./setup_opencart_server.sh <SERVER_NAME> <SERVER_ALIAS>
+sudo ./setup_webserver.sh <SERVER_NAME> <SERVER_ALIAS>
 
 - <SERVER_NAME>: The server name for your Apache configuration.
 - <SERVER_ALIAS>: The server alias for your Apache configuration.
