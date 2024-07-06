@@ -364,7 +364,8 @@ SERVER_IPS=$(hostname -I)
 
 # Check Apache status and configuration
 echo -e "\n\e[1;34m--- Apache Status and Configuration ---\e[0m"
-sudo systemctl status apache2 --no-pager -l
+APACHE_STATUS=$(sudo systemctl is-active apache2)
+echo -e "Apache status: \e[1;32m$APACHE_STATUS\e[0m"
 echo -e "\n\e[1;34mApache Config Test:\e[0m"
 sudo apache2ctl configtest
 echo -e "\n\e[1;34mVirtual Hosts:\e[0m"
@@ -372,17 +373,20 @@ sudo apache2ctl -S
 
 # Check PHP-FPM status
 echo -e "\n\e[1;34m--- PHP-FPM Status ---\e[0m"
-sudo systemctl status php8.0-fpm --no-pager -l
+PHP_FPM_STATUS=$(sudo systemctl is-active php8.0-fpm)
+echo -e "PHP-FPM status: \e[1;32m$PHP_FPM_STATUS\e[0m"
 
 # Check Varnish status and configuration
 echo -e "\n\e[1;34m--- Varnish Status and Configuration ---\e[0m"
-sudo systemctl status varnish --no-pager -l
+VARNISH_STATUS=$(sudo systemctl is-active varnish)
+echo -e "Varnish status: \e[1;32m$VARNISH_STATUS\e[0m"
 echo -e "\n\e[1;34mVarnish Listening Ports:\e[0m"
 sudo netstat -tulpn | grep varnish
 
 # Check Redis status
 echo -e "\n\e[1;34m--- Redis Status ---\e[0m"
-sudo systemctl status redis-server --no-pager -l
+REDIS_STATUS=$(sudo systemctl is-active redis-server)
+echo -e "Redis status: \e[1;32m$REDIS_STATUS\e[0m"
 echo -e "\n\e[1;34mRedis Listening Ports:\e[0m"
 sudo netstat -tulpn | grep redis
 
@@ -404,3 +408,4 @@ for IP in $SERVER_IPS; do
 done
 
 echo -e "\n\e[1;32mServer setup complete. Please check the above statuses and access the server using the provided URLs.\e[0m"
+
