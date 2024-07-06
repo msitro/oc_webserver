@@ -23,7 +23,7 @@ Installation Steps
 
 Clone this repository to your server:
 
-git clone https://github.com/yourusername/opencart-server-setup.git
+git clone https://github.com/msitro/oc_webserver.git
 cd opencart-server-setup
 
 2. Run the Script
