@@ -14,6 +14,7 @@ fi
 sudo apt update && sudo apt upgrade -y
 
 # Install PHP 8.0 and extensions
+sudo apt install net-tools
 sudo apt install software-properties-common -y
 sudo add-apt-repository ppa:ondrej/php -y
 sudo apt update
