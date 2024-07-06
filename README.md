@@ -35,6 +35,7 @@ chmod +x setup_webserver.sh
 
 Run the script with necessary parameters:
 
+sudo ./setup_webserver_with_cache.sh <SERVER_NAME> <SERVER_ALIAS>
 sudo ./setup_webserver.sh <SERVER_NAME> <SERVER_ALIAS>
 
 - <SERVER_NAME>: The server name for your Apache configuration.
