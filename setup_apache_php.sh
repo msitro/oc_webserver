@@ -37,7 +37,7 @@ systemctl restart varnish
 # Enable necessary Apache2 modules
 a2enmod actions fcgid alias proxy_fcgi rewrite ssl headers proxy proxy_http
 
-# Configure Apache2 for PHP-FPM
+# Configure Apache2 for PHP-FPM, Varnish, and Redis
 cat <<EOT > /etc/apache2/sites-available/000-default.conf
 <VirtualHost *:80>
     ServerAdmin ${ADMIN_EMAIL}
@@ -54,6 +54,20 @@ cat <<EOT > /etc/apache2/sites-available/000-default.conf
     </FilesMatch>
     ErrorLog \${APACHE_LOG_DIR}/error.log
     CustomLog \${APACHE_LOG_DIR}/access.log combined
+
+    # Varnish Configuration
+    <Proxy "http://127.0.0.1:8080">
+        Allow from all
+    </Proxy>
+    ProxyPass / http://127.0.0.1:8080/
+    ProxyPassReverse / http://127.0.0.1:8080/
+
+    # Redis Configuration
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteCond %{HTTP:Authorization} ^(.*)
+        RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+    </IfModule>
 </VirtualHost>
 EOT
 
@@ -78,6 +92,20 @@ cat <<EOT > /etc/apache2/sites-available/default-ssl.conf
     SSLCertificateKeyFile /etc/apache2/ssl/apache.key
     ErrorLog \${APACHE_LOG_DIR}/error.log
     CustomLog \${APACHE_LOG_DIR}/access.log combined
+
+    # Varnish Configuration
+    <Proxy "http://127.0.0.1:8080">
+        Allow from all
+    </Proxy>
+    ProxyPass / http://127.0.0.1:8080/
+    ProxyPassReverse / http://127.0.0.1:8080/
+
+    # Redis Configuration
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteCond %{HTTP:Authorization} ^(.*)
+        RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+    </IfModule>
 </VirtualHost>
 </IfModule>
 EOT
@@ -279,3 +307,5 @@ systemctl enable redis-server
 # Setup permissions for web root directory
 chown -R www-data:www-data /var/www/html
 chmod -R 755 /var/www/html
+
+echo "SSetup completed!"
