@@ -9,6 +9,9 @@ if [ -z "$DOMAIN_NAME" ] || [ -z "$ADMIN_EMAIL" ]; then
   exit 1
 fi
 
+# Set non-interactive mode
+export DEBIAN_FRONTEND=noninteractive
+
 # Update system and install prerequisites
 apt update && apt upgrade -y && apt install -y software-properties-common curl
 
