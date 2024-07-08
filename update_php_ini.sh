@@ -1,3 +1,7 @@
+#!/bin/bash
+# PHP Configuration
+cat <<EOT > /etc/php/8.0/fpm/php.ini
+
 [PHP]
 engine = On
 short_open_tag = Off
@@ -194,3 +198,4 @@ zend.assertions = -1
 [openssl]
 
 [redis]
+EOT
