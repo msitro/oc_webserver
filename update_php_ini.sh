@@ -199,3 +199,9 @@ zend.assertions = -1
 
 [redis]
 EOT
+
+# Restart services to apply changes
+systemctl restart apache2
+systemctl restart php8.0-fpm
+systemctl restart varnish
+systemctl restart redis-server
