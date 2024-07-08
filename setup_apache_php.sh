@@ -68,6 +68,34 @@ cat <<EOT > /etc/apache2/sites-available/000-default.conf
         RewriteCond %{HTTP:Authorization} ^(.*)
         RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
     </IfModule>
+
+    # Compression
+    <IfModule mod_deflate.c>
+        AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+    </IfModule>
+
+    # Caching
+    <IfModule mod_expires.c>
+        ExpiresActive On
+        ExpiresByType image/jpg "access plus 1 year"
+        ExpiresByType image/jpeg "access plus 1 year"
+        ExpiresByType image/gif "access plus 1 year"
+        ExpiresByType image/png "access plus 1 year"
+        ExpiresByType text/css "access plus 1 month"
+        ExpiresByType application/pdf "access plus 1 month"
+        ExpiresByType text/x-javascript "access plus 1 month"
+        ExpiresByType application/x-shockwave-flash "access plus 1 month"
+        ExpiresByType image/x-icon "access plus 1 year"
+        ExpiresDefault "access plus 2 days"
+    </IfModule>
+
+    # Security Headers
+    <IfModule mod_headers.c>
+        Header always set X-Content-Type-Options "nosniff"
+        Header always set X-Frame-Options "DENY"
+        Header always set X-XSS-Protection "1; mode=block"
+        Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    </IfModule>
 </VirtualHost>
 EOT
 
@@ -308,4 +336,4 @@ systemctl enable redis-server
 chown -R www-data:www-data /var/www/html
 chmod -R 755 /var/www/html
 
-echo "SSetup completed!"
+echo "Setup completed!"
