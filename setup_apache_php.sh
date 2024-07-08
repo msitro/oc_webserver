@@ -19,7 +19,20 @@ apt update && apt upgrade -y && apt install -y software-properties-common curl
 add-apt-repository ppa:ondrej/php -y && apt update
 
 # Install Apache2, PHP-FPM 8.0, Varnish, Redis, and required PHP modules
-apt install -y apache2 libapache2-mod-fcgid php8.0-fpm php8.0 php8.0-common php8.0-mysql php8.0-xml php8.0-curl php8.0-gd php8.0-mbstring php8.0-zip php8.0-bcmath php8.0-intl php8.0-opcache php8.0-bz2 php8.0-dba php8.0-enchant php8.0-imap php8.0-ldap php8.0-msgpack php8.0-odbc php8.0-readline php8.0-snmp php8.0-soap php8.0-sqlite3 php8.0-tidy php8.0-xsl php8.0-redis varnish redis-server
+apt install -y apache2 libapache2-mod-fcgid php8.0-fpm php8.0 php8.0-common php8.0-mysql php8.0-xml php8.0-curl php8.0-gd php8.0-mbstring php8.0-zip php8.0-bcmath php8.0-intl php8.0-opcache php8.0-bz2 php8.0-dba php8.0-enchant php8.0-imap php8.0-ldap php8.0-msgpack php8.0-odbc php8.0-readline php8.0-snmp php8.0-soap php8.0-sqlite3 php8.0-tidy php8.0-xsl php8.0-redis redis-server
+
+# Install Varnish
+apt install -y varnish
+
+# Update Varnish to listen on port 8080
+sed -i '/ExecStart/d' /lib/systemd/system/varnish.service
+sed -i '/\[Service\]/a ExecStart=/usr/sbin/varnishd -j unix,user=vcache -F -a :8080 -T localhost:6082 -f /etc/varnish/default.vcl -S /etc/varnish/secret -s malloc,256m' /lib/systemd/system/varnish.service
+
+# Reload systemd to apply changes
+systemctl daemon-reload
+
+# Restart Varnish to apply changes
+systemctl restart varnish
 
 # Enable necessary Apache2 modules
 a2enmod actions fcgid alias proxy_fcgi rewrite ssl headers proxy proxy_http
@@ -72,9 +85,6 @@ EOT
 # Enable SSL site configuration and restart Apache
 a2ensite default-ssl
 systemctl reload apache2
-
-# Update Varnish to listen on port 8080
-sed -i 's/-a :80/-a :8080/' /lib/systemd/system/varnish.service
 
 # Configure Varnish to forward requests to Apache on port 80
 cat <<EOT > /etc/varnish/default.vcl
@@ -251,8 +261,10 @@ zend.assertions = -1
 [redis]
 EOT
 
-# Restart services to apply changes
+# Reload systemd to apply changes
 systemctl daemon-reload
+
+# Restart services to apply changes
 systemctl restart apache2
 systemctl restart php8.0-fpm
 systemctl restart varnish
